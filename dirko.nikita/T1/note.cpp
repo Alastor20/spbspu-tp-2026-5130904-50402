@@ -103,3 +103,18 @@ void dirko::countExpired(std::istream &is, std::ostream &os, notes_t &db)
   }
   os << expired << '\n';
 }
+
+void dirko::refreshLinks(std::istream &is, std::ostream &, notes_t &db)
+{
+  std::string name;
+  is >> name;
+  try {
+    for (const std::pair< const std::string, std::weak_ptr< Note > > &link : db.at(name)->links) {
+      if (link.second.expired()) {
+        db.at(name)->links.erase(link.first);
+      }
+    }
+  } catch (const std::out_of_range &) {
+    throw std::logic_error("No note with this name");
+  }
+}
