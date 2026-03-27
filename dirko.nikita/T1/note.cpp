@@ -1,8 +1,10 @@
 #include "note.hpp"
 #include <iomanip>
 #include <iostream>
+#include <memory>
 #include <stdexcept>
 #include <string>
+#include <utility>
 
 dirko::Note::Note(std::string name):
   name(name),
@@ -59,12 +61,27 @@ void dirko::linkNote(std::istream &is, std::ostream &, notes_t &db)
     throw std::logic_error("Cant link");
   }
 }
-void dirko::removeNote(std::istream &is, std::ostream &, notes_t &db)
+void dirko::removeLink(std::istream &is, std::ostream &, notes_t &db)
 {
   std::string from, to;
   is >> from >> to;
   try {
     db.at(from)->links.erase(to);
+  } catch (const std::out_of_range &) {
+    throw std::logic_error("No note with this name");
+  }
+}
+
+void dirko::printLinks(std::istream &is, std::ostream &os, notes_t &db)
+{
+  std::string name;
+  is >> name;
+  try {
+    for (const std::pair< const std::string, std::weak_ptr< Note > > &link : db.at(name)->links) {
+      if (!link.second.expired()) {
+        os << link.first << '\n';
+      }
+    }
   } catch (const std::out_of_range &) {
     throw std::logic_error("No note with this name");
   }

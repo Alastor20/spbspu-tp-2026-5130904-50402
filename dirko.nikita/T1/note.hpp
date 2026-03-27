@@ -1,10 +1,10 @@
 #ifndef NOTE_HPP
 #define NOTE_HPP
 #include <iosfwd>
+#include <limits>
 #include <memory>
 #include <string>
 #include <unordered_map>
-#include <limits>
 #include <vector>
 
 namespace dirko
@@ -26,6 +26,7 @@ namespace dirko
   void printNote(std::istream &is, std::ostream &os, notes_t &db);
   void dropNote(std::istream &is, std::ostream &, notes_t &db);
   void linkNote(std::istream &is, std::ostream &, notes_t &db);
-  void removeNote(std::istream &is, std::ostream &, notes_t &db);
+  void removeLink(std::istream &is, std::ostream &, notes_t &db);
+  void printLinks(std::istream &is, std::ostream &os, notes_t &db);
 }
 #endif
