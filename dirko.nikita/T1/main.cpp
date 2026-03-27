@@ -9,8 +9,9 @@ int main()
 {
   dirko::notes_t db;
   const std::unordered_map< std::string, dirko::func_t > cmds{
-      {"note", dirko::addNote},  {"line", dirko::addDesc},    {"show", dirko::printNote},  {"drop", dirko::dropNote},
-      {"link", dirko::linkNote}, {"halt", dirko::removeLink}, {"mind", dirko::printLinks},
+      {"note", dirko::addNote},    {"line", dirko::addDesc},         {"show", dirko::printNote},
+      {"drop", dirko::dropNote},   {"link", dirko::linkNote},        {"halt", dirko::removeLink},
+      {"mind", dirko::printLinks}, {"expired", dirko::countExpired},
   };
   std::string cmd;
   while (std::cin >> cmd) {

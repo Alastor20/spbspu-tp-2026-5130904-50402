@@ -28,5 +28,6 @@ namespace dirko
   void linkNote(std::istream &is, std::ostream &, notes_t &db);
   void removeLink(std::istream &is, std::ostream &, notes_t &db);
   void printLinks(std::istream &is, std::ostream &os, notes_t &db);
+  void countExpired(std::istream &is, std::ostream &os, notes_t &db);
 }
 #endif
