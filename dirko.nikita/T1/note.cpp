@@ -41,3 +41,10 @@ void dirko::printNote(std::istream &is, std::ostream &os, notes_t &db)
     throw std::logic_error("no note with this name");
   }
 }
+
+void dirko::dropNote(std::istream &is, std::ostream &, notes_t &db)
+{
+  std::string name;
+  is >> name;
+  db.erase(name);
+}

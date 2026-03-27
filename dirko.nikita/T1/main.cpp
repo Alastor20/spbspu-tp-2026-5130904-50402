@@ -12,6 +12,7 @@ int main()
       {"note", dirko::addNote},
       {"line", dirko::addDesc},
       {"show", dirko::printNote},
+      {"drop", dirko::dropNote},
   };
   std::string cmd;
   while (std::cin >> cmd) {

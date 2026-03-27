@@ -24,5 +24,6 @@ namespace dirko
   void addNote(std::istream &is, std::ostream &, notes_t &db);
   void addDesc(std::istream &is, std::ostream &, notes_t &db);
   void printNote(std::istream &is, std::ostream &os, notes_t &db);
+  void dropNote(std::istream &is, std::ostream &, notes_t &db);
 }
 #endif
