@@ -48,3 +48,24 @@ void dirko::dropNote(std::istream &is, std::ostream &, notes_t &db)
   is >> name;
   db.erase(name);
 }
+
+void dirko::linkNote(std::istream &is, std::ostream &, notes_t &db)
+{
+  std::string from, to;
+  is >> from >> to;
+  try {
+    db.at(from)->links[to] = db.at(to);
+  } catch (const std::out_of_range &) {
+    throw std::logic_error("Cant link");
+  }
+}
+void dirko::removeNote(std::istream &is, std::ostream &, notes_t &db)
+{
+  std::string from, to;
+  is >> from >> to;
+  try {
+    db.at(from)->links.erase(to);
+  } catch (const std::out_of_range &) {
+    throw std::logic_error("No note with this name");
+  }
+}
