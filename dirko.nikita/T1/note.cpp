@@ -7,17 +7,11 @@
 #include <utility>
 #include <vector>
 
-dirko::Note::Note(std::string name):
-  name(name),
-  desc(),
-  links()
-{}
-
 void dirko::addNote(std::istream &is, std::ostream &, notes_t &db)
 {
   std::string name;
   is >> name;
-  db[name] = std::make_shared< Note >(name);
+  db[name] = std::shared_ptr< NoteBody >(new NoteBody{});
 }
 
 void dirko::addDesc(std::istream &is, std::ostream &, notes_t &db)
@@ -78,7 +72,7 @@ void dirko::printLinks(std::istream &is, std::ostream &os, notes_t &db)
   std::string name;
   is >> name;
   try {
-    for (const std::pair< const std::string, std::weak_ptr< Note > > &link : db.at(name)->links) {
+    for (const std::pair< const std::string, std::weak_ptr< NoteBody > > &link : db.at(name)->links) {
       if (!link.second.expired()) {
         os << link.first << '\n';
       }
@@ -94,7 +88,7 @@ void dirko::countExpired(std::istream &is, std::ostream &os, notes_t &db)
   size_t expired = 0;
   is >> name;
   try {
-    for (const std::pair< const std::string, std::weak_ptr< Note > > &link : db.at(name)->links) {
+    for (const std::pair< const std::string, std::weak_ptr< NoteBody > > &link : db.at(name)->links) {
       if (link.second.expired()) {
         ++expired;
       }
@@ -111,7 +105,7 @@ void dirko::refreshLinks(std::istream &is, std::ostream &, notes_t &db)
   std::vector< std::string > toRemove;
   is >> name;
   try {
-    for (const std::pair< const std::string, std::weak_ptr< Note > > &link : db.at(name)->links) {
+    for (const std::pair< const std::string, std::weak_ptr< NoteBody > > &link : db.at(name)->links) {
       if (link.second.expired()) {
         toRemove.push_back(link.first);
       }
