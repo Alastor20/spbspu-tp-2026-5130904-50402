@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <string>
 #include <utility>
+#include <vector>
 
 dirko::Note::Note(std::string name):
   name(name),
@@ -107,14 +108,18 @@ void dirko::countExpired(std::istream &is, std::ostream &os, notes_t &db)
 void dirko::refreshLinks(std::istream &is, std::ostream &, notes_t &db)
 {
   std::string name;
+  std::vector< std::string > toRemove;
   is >> name;
   try {
     for (const std::pair< const std::string, std::weak_ptr< Note > > &link : db.at(name)->links) {
       if (link.second.expired()) {
-        db.at(name)->links.erase(link.first);
+        toRemove.push_back(link.first);
       }
     }
   } catch (const std::out_of_range &) {
     throw std::logic_error("No note with this name");
+  }
+  for (const std::string &note : toRemove) {
+    db.at(name)->links.erase(note);
   }
 }
