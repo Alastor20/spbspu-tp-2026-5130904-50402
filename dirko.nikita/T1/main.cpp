@@ -23,13 +23,6 @@ int main()
       std::cin.ignore(dirko::streamMax, '\n');
     } catch (const std::logic_error &e) {
       std::cout << e.what() << '\n';
-    } catch (...) {
-      std::cerr << "<PANIC>\n";
-      return 1;
     }
-  }
-  if (!std::cin.eof()) {
-    std::cerr << "<INPUT ERROR>\n";
-    return 1;
   }
 }
