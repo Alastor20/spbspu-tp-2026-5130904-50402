@@ -4,34 +4,32 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
-#include <vector>
 
 class Note
 {
 public:
   Note(std::string name):
-    name_(name),
-    desc_(""),
+    name(name),
+    desc(""),
     links()
   {}
 
-private:
-  std::string name_, desc_;
-  std::weak_ptr< Note > links;
+  std::string name, desc;
+  std::unordered_map< std::string, std::weak_ptr< Note > > links;
 };
 
-void addNote(std::istream &is, std::vector< std::shared_ptr< Note > > &db)
+void addNote(std::istream &is, std::unordered_map< std::string, std::shared_ptr< Note > > &db)
 {
   std::string name;
   is >> name;
-  db.push_back(std::make_shared< Note >(name));
+  db[name] = std::make_shared< Note >(name);
 }
 
 int main()
 {
-  std::vector< std::shared_ptr< Note > > db;
+  std::unordered_map< std::string, std::shared_ptr< Note > > db;
   constexpr std::streamsize streamMax = std::numeric_limits< std::streamsize >::max();
-  using func_t = void (*)(std::istream &, std::vector< std::shared_ptr< Note > > &);
+  using func_t = void (*)(std::istream &, std::unordered_map< std::string, std::shared_ptr< Note > > &);
   const std::unordered_map< std::string, func_t > cmds{
       {"note", addNote},
   };
@@ -40,7 +38,7 @@ int main()
     try {
       cmds.at(cmd)(std::cin, db);
     } catch (const std::out_of_range &) {
-      std::cout << "<UNKNOWN COMMAND>\n";
+      std::cout << "<INVALID COMMAND>\n";
       std::cin.ignore(streamMax, '\n');
     } catch (const std::logic_error &e) {
       std::cout << e.what() << '\n';
