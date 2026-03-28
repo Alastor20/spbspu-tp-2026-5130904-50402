@@ -11,7 +11,7 @@ void dirko::addNote(std::istream &is, std::ostream &, notes_t &db)
 {
   std::string name;
   is >> name;
-  db[name] = std::shared_ptr< NoteBody >(new NoteBody{});
+  db[name] = std::make_shared< NoteBody >();
 }
 
 void dirko::addDesc(std::istream &is, std::ostream &, notes_t &db)
