@@ -4,6 +4,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -11,7 +12,11 @@ void dirko::addNote(std::istream &is, std::ostream &, notes_t &db)
 {
   std::string name;
   is >> name;
-  db[name] = std::make_shared< NoteBody >();
+  if (db.find(name) == db.end()) {
+    db[name] = std::make_shared< NoteBody >();
+  } else {
+    throw std::logic_error("This note already exists");
+  }
 }
 
 void dirko::addDesc(std::istream &is, std::ostream &, notes_t &db)
@@ -51,7 +56,11 @@ void dirko::linkNote(std::istream &is, std::ostream &, notes_t &db)
   std::string from, to;
   is >> from >> to;
   try {
-    db.at(from)->links[to] = db.at(to);
+    if (db.at(from)->links.find(to) == db.at(from)->links.end()) {
+      db.at(from)->links[to] = db.at(to);
+    } else {
+      throw std::logic_error("This link already exists");
+    }
   } catch (const std::out_of_range &) {
     throw std::logic_error("Cant link");
   }
