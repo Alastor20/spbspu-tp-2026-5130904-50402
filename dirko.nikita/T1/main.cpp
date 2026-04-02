@@ -20,7 +20,7 @@ int main()
       std::cout << "<INVALID COMMAND>\n";
       std::cin.ignore(dirko::streamMax, '\n');
     } catch (const std::logic_error &e) {
-      std::cout << e.what() << '\n';
+      std::cout << "<INVALID COMMAND>\n";
     }
   }
 }

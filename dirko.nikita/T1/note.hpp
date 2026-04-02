@@ -9,14 +9,18 @@
 
 namespace dirko
 {
-  class NoteBody
+  class Note
   {
   public:
-    std::vector< std::string > desc;
-    std::unordered_map< std::string, std::weak_ptr< NoteBody > > links;
+    Note(std::string name);
+
+  private:
+    std::string name_;
+    std::vector< std::string > desc_;
+    std::vector< std::weak_ptr< Note > > links_;
   };
   constexpr std::streamsize streamMax = std::numeric_limits< std::streamsize >::max();
-  using notes_t = std::unordered_map< std::string, std::shared_ptr< NoteBody > >;
+  using notes_t = std::unordered_map< std::string, std::shared_ptr< Note > >;
   using func_t = void (*)(std::istream &, std::ostream &, notes_t &);
   void addNote(std::istream &is, std::ostream &, notes_t &db);
   void addDesc(std::istream &is, std::ostream &, notes_t &db);
