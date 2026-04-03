@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 dirko::Note::Note(std::string name):
@@ -140,24 +141,16 @@ void dirko::countExpired(std::istream &is, std::ostream &os, notes_t &db)
 void dirko::refreshLinks(std::istream &is, std::ostream &, notes_t &db)
 {
   std::string name;
-  std::vector< size_t > toRemove;
+  std::vector< std::weak_ptr< Note > > vec;
   is >> name;
   try {
-    for (size_t i = 0; i < db.at(name)->links.size(); ++i) {
-      if (db.at(name)->links[i].expired()) {
-        toRemove.push_back(i);
+    for (std::weak_ptr< Note > &link : db.at(name)->links) {
+      if (!link.expired()) {
+        vec.push_back(std::move(link));
       }
     }
   } catch (const std::out_of_range &) {
     throw std::logic_error("No note with this name");
   }
-  size_t k = 0;
-  std::vector< std::weak_ptr< Note > >::iterator it = db.at(name)->links.begin();
-  for (size_t i = 0; i < db.at(name)->links.size() || k < toRemove.size(); ++i) {
-    if (i == toRemove.at(k)) {
-      db.at(name)->links.erase(it);
-      ++k;
-    }
-    ++it;
-  }
+  db.at(name)->links.swap(vec);
 }
