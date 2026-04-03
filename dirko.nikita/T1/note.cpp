@@ -5,15 +5,30 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
-#include <utility>
 #include <vector>
+
+dirko::Note::Note(std::string name):
+  name(name),
+  desc(),
+  links()
+{}
+
+dirko::linkIt_t dirko::find(linkIt_t start, linkIt_t end, std::string name)
+{
+  for (; start != end; ++start) {
+    if (!start->expired() && start->lock()->name == name) {
+      return start;
+    }
+  }
+  return end;
+}
 
 void dirko::addNote(std::istream &is, std::ostream &, notes_t &db)
 {
   std::string name;
   is >> name;
   if (db.find(name) == db.end()) {
-    db[name] = std::make_shared< Note >();
+    db[name] = std::make_shared< Note >(name);
   } else {
     throw std::logic_error("This note already exists");
   }
@@ -36,6 +51,9 @@ void dirko::printNote(std::istream &is, std::ostream &os, notes_t &db)
   std::string name;
   is >> name;
   try {
+    if (!db.at(name)->desc.size()) {
+      os << '\n';
+    }
     for (const std::string &line : db.at(name)->desc) {
       os << line << '\n';
     }
@@ -48,6 +66,9 @@ void dirko::dropNote(std::istream &is, std::ostream &, notes_t &db)
 {
   std::string name;
   is >> name;
+  if (db.find(name) == db.end()) {
+    throw std::logic_error("no note with this name");
+  }
   db.erase(name);
 }
 
@@ -56,8 +77,8 @@ void dirko::linkNote(std::istream &is, std::ostream &, notes_t &db)
   std::string from, to;
   is >> from >> to;
   try {
-    if (db.at(from)->links.find(to) == db.at(from)->links.end()) {
-      db.at(from)->links[to] = db.at(to);
+    if (dirko::find(db.at(from)->links.begin(), db.at(from)->links.end(), to) == db.at(from)->links.end()) {
+      db.at(from)->links.push_back(db.at(to));
     } else {
       throw std::logic_error("This link already exists");
     }
@@ -70,24 +91,32 @@ void dirko::removeLink(std::istream &is, std::ostream &, notes_t &db)
   std::string from, to;
   is >> from >> to;
   try {
-    db.at(from)->links.erase(to);
+    dirko::linkIt_t it = dirko::find(db.at(from)->links.begin(), db.at(from)->links.end(), to);
+    if (it == db.at(from)->links.end()) {
+      throw std::logic_error("No link with this name");
+    }
+    db.at(from)->links.erase(it);
   } catch (const std::out_of_range &) {
     throw std::logic_error("No note with this name");
   }
 }
-
 void dirko::printLinks(std::istream &is, std::ostream &os, notes_t &db)
 {
   std::string name;
   is >> name;
+  bool print = true;
   try {
-    for (const std::pair< const std::string, std::weak_ptr< Note > > &link : db.at(name)->links) {
-      if (!link.second.expired()) {
-        os << link.first << '\n';
+    for (const std::weak_ptr< Note > &link : db.at(name)->links) {
+      if (!link.expired()) {
+        os << link.lock()->name << '\n';
+        print = false;
       }
     }
   } catch (const std::out_of_range &) {
     throw std::logic_error("No note with this name");
+  }
+  if (print) {
+    os << '\n';
   }
 }
 
@@ -97,8 +126,8 @@ void dirko::countExpired(std::istream &is, std::ostream &os, notes_t &db)
   size_t expired = 0;
   is >> name;
   try {
-    for (const std::pair< const std::string, std::weak_ptr< Note > > &link : db.at(name)->links) {
-      if (link.second.expired()) {
+    for (const std::weak_ptr< Note > &link : db.at(name)->links) {
+      if (link.expired()) {
         ++expired;
       }
     }
@@ -111,18 +140,24 @@ void dirko::countExpired(std::istream &is, std::ostream &os, notes_t &db)
 void dirko::refreshLinks(std::istream &is, std::ostream &, notes_t &db)
 {
   std::string name;
-  std::vector< std::string > toRemove;
+  std::vector< size_t > toRemove;
   is >> name;
   try {
-    for (const std::pair< const std::string, std::weak_ptr< Note > > &link : db.at(name)->links) {
-      if (link.second.expired()) {
-        toRemove.push_back(link.first);
+    for (size_t i = 0; i < db.at(name)->links.size(); ++i) {
+      if (db.at(name)->links[i].expired()) {
+        toRemove.push_back(i);
       }
     }
   } catch (const std::out_of_range &) {
     throw std::logic_error("No note with this name");
   }
-  for (const std::string &note : toRemove) {
-    db.at(name)->links.erase(note);
+  size_t k = 0;
+  std::vector< std::weak_ptr< Note > >::iterator it = db.at(name)->links.begin();
+  for (size_t i = 0; i < db.at(name)->links.size() || k < toRemove.size(); ++i) {
+    if (i == toRemove.at(k)) {
+      db.at(name)->links.erase(it);
+      ++k;
+    }
+    ++it;
   }
 }

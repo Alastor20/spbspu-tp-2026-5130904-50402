@@ -13,11 +13,9 @@ namespace dirko
   {
   public:
     Note(std::string name);
-
-  private:
-    std::string name_;
-    std::vector< std::string > desc_;
-    std::vector< std::weak_ptr< Note > > links_;
+    std::string name;
+    std::vector< std::string > desc;
+    std::vector< std::weak_ptr< Note > > links;
   };
   constexpr std::streamsize streamMax = std::numeric_limits< std::streamsize >::max();
   using notes_t = std::unordered_map< std::string, std::shared_ptr< Note > >;
@@ -31,5 +29,7 @@ namespace dirko
   void printLinks(std::istream &is, std::ostream &os, notes_t &db);
   void countExpired(std::istream &is, std::ostream &os, notes_t &db);
   void refreshLinks(std::istream &is, std::ostream &, notes_t &db);
+  using linkIt_t = std::vector< std::weak_ptr< Note > >::iterator;
+  linkIt_t find(linkIt_t, linkIt_t, std::string name);
 }
 #endif
