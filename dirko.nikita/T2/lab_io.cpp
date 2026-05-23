@@ -56,6 +56,18 @@ std::istream &dirko::operator>>(std::istream &in, CharIO &&dest)
   return in;
 }
 
+std::istream &dirko::operator>>(std::istream &in, CompIO &&dest)
+{
+  std::istream::sentry sentry(in);
+  if (!sentry) {
+    return in;
+  }
+  IOguard guard(in);
+  double real = 0, imag = 0;
+  in >> LabelIO{"#c("} >> real >> imag >> DelimIO{')'};
+  return in;
+}
+
 std::istream &dirko::operator>>(std::istream &in, StringIO &&dest)
 {
   std::istream::sentry sentry(in);
