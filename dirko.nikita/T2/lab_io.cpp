@@ -131,3 +131,16 @@ std::istream &dirko::operator>>(std::istream &in, DataStruct &&dest)
   }
   return in;
 }
+
+std::ostream &dirko::operator<<(std::ostream &out, const DataStruct &src)
+{
+  std::ostream::sentry sentry(out);
+  if (!sentry) {
+    return out;
+  }
+  IOguard guard(out);
+  out << "(:" << "key1 " << '\'' << src.key1 << "':";
+  out << "key2 " << "#c(" << src.key2.real() << ' ' << src.key2.imag() << "):";
+  out << "key3 " << std::quoted(src.key3) << ":" << ")";
+  return out;
+}
