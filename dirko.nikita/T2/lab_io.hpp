@@ -50,7 +50,7 @@ namespace dirko
   std::istream &operator>>(std::istream &in, LabelIO &&dest);
   std::istream &operator>>(std::istream &in, DelimIO &&dest);
 
-  std::istream &operator>>(std::istream &in, DataStruct &&dest);
+  std::istream &operator>>(std::istream &in, DataStruct &dest);
   std::ostream &operator<<(std::ostream &out, const DataStruct &src);
 
   bool operator<(const DataStruct &lhs, const DataStruct &rhs);

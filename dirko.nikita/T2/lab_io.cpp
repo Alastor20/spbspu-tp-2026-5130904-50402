@@ -92,7 +92,7 @@ bool dirko::operator<(const DataStruct &lhs, const DataStruct &rhs)
   return lhs.key3.length() < rhs.key3.length();
 }
 
-std::istream &dirko::operator>>(std::istream &in, DataStruct &&dest)
+std::istream &dirko::operator>>(std::istream &in, DataStruct &dest)
 {
   std::istream::sentry sentry(in);
   if (!sentry) {
