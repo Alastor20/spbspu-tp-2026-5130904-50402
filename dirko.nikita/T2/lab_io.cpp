@@ -51,7 +51,8 @@ std::istream &dirko::operator>>(std::istream &in, CharIO &&dest)
   if (!sentry) {
     return in;
   }
-
+  IOguard guard(in);
+  in >> DelimIO{'\''} >> dest.ref >> DelimIO{'\''};
   return in;
 }
 
