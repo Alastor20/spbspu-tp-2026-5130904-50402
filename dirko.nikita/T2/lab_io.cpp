@@ -1,5 +1,7 @@
 #include "lab_io.hpp"
+#include <functional>
 #include <iomanip>
+#include <type_traits>
 
 std::istream &dirko::operator>>(std::istream &in, DelimIO &&dest)
 {
@@ -65,6 +67,7 @@ std::istream &dirko::operator>>(std::istream &in, CompIO &&dest)
   IOguard guard(in);
   double real = 0, imag = 0;
   in >> LabelIO{"#c("} >> real >> imag >> DelimIO{')'};
+  dest.ref = {real, imag};
   return in;
 }
 
@@ -89,4 +92,42 @@ bool dirko::operator<(const DataStruct &lhs, const DataStruct &rhs)
     return lhs.key2.imag() < rhs.key2.imag();
   }
   return lhs.key3.length() < rhs.key3.length();
+}
+
+std::istream &dirko::operator>>(std::istream &in, DataStruct &&dest)
+{
+  std::istream::sentry sentry(in);
+  if (!sentry) {
+    return in;
+  }
+  DataStruct tmp;
+  bool got1 = false, got2 = false, got3 = false;
+  in >> DelimIO{'('};
+  while (in && (!got1 || !got2 || !got3)) {
+    std::string label;
+    in >> label;
+    if (label == ":key1" && !got1) {
+      in >> CharIO{tmp.key1};
+      if (in) {
+        got1 = true;
+      }
+    } else if (label == ":key2" && !got2) {
+      in >> CompIO{tmp.key2};
+      if (in) {
+        got2 = true;
+      }
+    } else if (label == ":key3" && !got3) {
+      in >> StringIO{tmp.key3};
+      if (in) {
+        got3 = true;
+      }
+    } else {
+      in.setstate(std::ios::failbit);
+    }
+  }
+  in >> LabelIO{":)"};
+  if (in && got1 && got2 && got3) {
+    dest = tmp;
+  }
+  return in;
 }
