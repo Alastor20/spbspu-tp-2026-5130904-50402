@@ -1,7 +1,5 @@
 #include "lab_io.hpp"
-#include <functional>
 #include <iomanip>
-#include <type_traits>
 
 std::istream &dirko::operator>>(std::istream &in, DelimIO &&dest)
 {
