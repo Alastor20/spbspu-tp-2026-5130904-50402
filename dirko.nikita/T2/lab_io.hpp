@@ -5,6 +5,19 @@
 #include <string>
 namespace dirko
 {
+  class IOguard
+  {
+  public:
+    explicit IOguard(std::basic_ios< char > &s);
+    ~IOguard();
+
+  private:
+    std::basic_ios< char > &s_;
+    std::streamsize width_;
+    std::streamsize precision_;
+    std::basic_ios< char >::fmtflags fmt_;
+    char fill_;
+  };
   struct DataStruct
   {
     char key1;
@@ -27,10 +40,15 @@ namespace dirko
   {
     std::string exp;
   };
+  struct DelimIO
+  {
+    char exp;
+  };
   std::istream &operator>>(std::istream &in, CharIO &&dest);
   std::istream &operator>>(std::istream &in, CompIO &&dest);
   std::istream &operator>>(std::istream &in, StringIO &&dest);
   std::istream &operator>>(std::istream &in, LabelIO &&dest);
+  std::istream &operator>>(std::istream &in, DelimIO &&dest);
 
   std::istream &operator>>(std::istream &in, DataStruct &&dest);
   std::ostream &operator<<(std::ostream &out, const DataStruct &src);
