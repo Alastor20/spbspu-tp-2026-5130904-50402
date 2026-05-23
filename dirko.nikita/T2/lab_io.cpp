@@ -64,7 +64,7 @@ std::istream &dirko::operator>>(std::istream &in, CompIO &&dest)
   }
   IOguard guard(in);
   double real = 0, imag = 0;
-  in >> LabelIO{"#c("} >> real >> imag >> DelimIO{')'};
+  in >> DelimIO{'#'} >> DelimIO{'c'} >> DelimIO{'('} >> real >> imag >> DelimIO{')'};
   dest.ref = {real, imag};
   return in;
 }
@@ -83,11 +83,8 @@ bool dirko::operator<(const DataStruct &lhs, const DataStruct &rhs)
   if (lhs.key1 != rhs.key1) {
     return lhs.key1 < rhs.key1;
   }
-  if (lhs.key2.real() != rhs.key2.real()) {
-    return lhs.key2.real() < rhs.key2.real();
-  }
-  if (lhs.key2.imag() != rhs.key2.imag()) {
-    return lhs.key2.imag() < rhs.key2.imag();
+  if (lhs.key2 != rhs.key2) {
+    return std::abs(lhs.key2) < std::abs(rhs.key2);
   }
   return lhs.key3.length() < rhs.key3.length();
 }
@@ -126,6 +123,8 @@ std::istream &dirko::operator>>(std::istream &in, DataStruct &dest)
   in >> LabelIO{":)"};
   if (in && got1 && got2 && got3) {
     dest = tmp;
+  } else {
+    in.setstate(std::ios::failbit);
   }
   return in;
 }
@@ -139,6 +138,6 @@ std::ostream &dirko::operator<<(std::ostream &out, const DataStruct &src)
   IOguard guard(out);
   out << "(:" << "key1 " << '\'' << src.key1 << "':";
   out << "key2 " << "#c(" << src.key2.real() << ' ' << src.key2.imag() << "):";
-  out << "key3 " << std::quoted(src.key3) << ":" << ")";
+  out << "key3 " << std::quoted(src.key3) << ":)";
   return out;
 }
