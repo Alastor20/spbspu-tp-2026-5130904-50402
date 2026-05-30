@@ -30,6 +30,7 @@ namespace dirko
   void countExpired(std::istream &is, std::ostream &os, notes_t &db);
   void refreshLinks(std::istream &is, std::ostream &, notes_t &db);
   using linkIt_t = std::vector< std::weak_ptr< Note > >::iterator;
+  using clinkIt_t = std::vector< std::weak_ptr< Note > >::const_iterator;
   linkIt_t find(linkIt_t, linkIt_t, std::string name);
 }
 #endif

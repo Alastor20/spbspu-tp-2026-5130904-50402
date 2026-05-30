@@ -4,7 +4,6 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -29,7 +28,7 @@ void dirko::addNote(std::istream &is, std::ostream &, notes_t &db)
   std::string name;
   is >> name;
   if (db.find(name) == db.end()) {
-    db[name] = std::make_shared< Note >(name);
+    db.emplace(name, std::make_shared< Note >(name));
   } else {
     throw std::logic_error("This note already exists");
   }
@@ -47,11 +46,13 @@ void dirko::printNote(std::istream &is, std::ostream &os, notes_t &db)
 {
   std::string name;
   is >> name;
-  if (!db.at(name)->desc.size()) {
-    os << '\n';
-  }
-  for (const std::string &line : db.at(name)->desc) {
-    os << line << '\n';
+  std::vector< std::string >::const_iterator begin = db.at(name)->desc.cbegin();
+  std::vector< std::string >::const_iterator end = db.at(name)->desc.cend();
+  if (begin != end) {
+    os << *begin;
+    for (std::vector< std::string >::const_iterator it = ++begin; it != end; ++it) {
+      os << '\n' << (*it);
+    }
   }
 }
 
@@ -89,15 +90,13 @@ void dirko::printLinks(std::istream &is, std::ostream &os, notes_t &db)
 {
   std::string name;
   is >> name;
-  bool print = true;
-  for (const std::weak_ptr< Note > &link : db.at(name)->links) {
+  bool first = true;
+  std::vector< std::weak_ptr< Note > > &links = db.at(name)->links;
+  for (const std::weak_ptr< Note > &link : links) {
     if (!link.expired()) {
-      os << link.lock()->name << '\n';
-      print = false;
+      os << (first ? "" : "\n") << link.lock()->name;
+      first = false;
     }
-  }
-  if (print) {
-    os << '\n';
   }
 }
 
@@ -106,12 +105,13 @@ void dirko::countExpired(std::istream &is, std::ostream &os, notes_t &db)
   std::string name;
   size_t expired = 0;
   is >> name;
-  for (const std::weak_ptr< Note > &link : db.at(name)->links) {
+  std::vector< std::weak_ptr< Note > > &links = db.at(name)->links;
+  for (const std::weak_ptr< Note > &link : links) {
     if (link.expired()) {
       ++expired;
     }
   }
-  os << expired << '\n';
+  os << expired;
 }
 
 void dirko::refreshLinks(std::istream &is, std::ostream &, notes_t &db)
@@ -119,7 +119,7 @@ void dirko::refreshLinks(std::istream &is, std::ostream &, notes_t &db)
   std::string name;
   std::vector< std::weak_ptr< Note > > vec;
   is >> name;
-  std::vector< std::weak_ptr< Note > > links = db.at(name)->links;
+  std::vector< std::weak_ptr< Note > > &links = db.at(name)->links;
   for (std::weak_ptr< Note > &link : links) {
     if (!link.expired()) {
       vec.push_back(std::move(link));
