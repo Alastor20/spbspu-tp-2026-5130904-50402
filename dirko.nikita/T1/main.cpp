@@ -1,5 +1,4 @@
 #include <iostream>
-#include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include "note.hpp"
@@ -16,11 +15,9 @@ int main()
   while (std::cin >> cmd) {
     try {
       cmds.at(cmd)(std::cin, std::cout, db);
-    } catch (const std::out_of_range &) {
+    } catch (const std::exception &) {
       std::cout << "<INVALID COMMAND>\n";
       std::cin.ignore(dirko::streamMax, '\n');
-    } catch (const std::logic_error &e) {
-      std::cout << "<INVALID COMMAND>\n";
     }
   }
 }

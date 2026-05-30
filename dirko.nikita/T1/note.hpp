@@ -12,10 +12,10 @@ namespace dirko
   class Note
   {
   public:
-    Note(std::string name);
     std::string name;
     std::vector< std::string > desc;
     std::vector< std::weak_ptr< Note > > links;
+    Note(std::string name);
   };
   constexpr std::streamsize streamMax = std::numeric_limits< std::streamsize >::max();
   using notes_t = std::unordered_map< std::string, std::shared_ptr< Note > >;
