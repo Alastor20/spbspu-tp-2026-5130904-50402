@@ -9,12 +9,12 @@
 
 namespace
 {
-  double crossTerm(std::vector< dirko::Point > &pts, size_t i, size_t n)
+  double crossTerm(const std::vector< dirko::Point > &pts, size_t i, size_t n)
   {
     size_t j = (i + 1) % n;
     return pts[i].x * pts[j].y - pts[j].x * pts[i].y;
   }
-  bool checkRightAngle(std::vector< dirko::Point > &pts, size_t i, size_t n)
+  bool checkRightAngle(const std::vector< dirko::Point > &pts, size_t i, size_t n)
   {
     size_t prev = (i + n - 1) % n;
     size_t next = (i + 1) % n;
@@ -24,11 +24,6 @@ namespace
     int dy2 = pts[next].y - pts[i].y;
     return dx1 * dx2 + dy1 * dy2 == 0;
   }
-}
-
-bool dirko::operator==(const Point &lhs, const Point &rhs)
-{
-  return lhs.x == rhs.x && lhs.y == rhs.y;
 }
 
 std::istream &dirko::operator>>(std::istream &in, Point &point)

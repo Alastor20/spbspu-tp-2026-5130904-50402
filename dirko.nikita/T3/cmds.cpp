@@ -3,6 +3,7 @@
 #include <functional>
 #include <iomanip>
 #include <numeric>
+#include <stdexcept>
 #include "polygon.hpp"
 
 namespace
@@ -38,6 +39,34 @@ namespace
   bool lessVertex(const dirko::Polygon &a, const dirko::Polygon &b)
   {
     return a.points.size() < b.points.size();
+  }
+  bool lessCoord(const dirko::Point &a, const dirko::Point &b, int dirko::Point::*coord)
+  {
+    return a.*coord < b.*coord;
+  }
+  int getMinX(const dirko::Polygon &poly)
+  {
+    using namespace std::placeholders;
+    return std::min_element(poly.points.begin(), poly.points.end(), std::bind(lessCoord, _1, _2, &dirko::Point::x))->x;
+  }
+  int getMaxX(const dirko::Polygon &poly)
+  {
+    using namespace std::placeholders;
+    return std::max_element(poly.points.begin(), poly.points.end(), std::bind(lessCoord, _1, _2, &dirko::Point::x))->x;
+  }
+  int getMinY(const dirko::Polygon &poly)
+  {
+    using namespace std::placeholders;
+    return std::min_element(poly.points.begin(), poly.points.end(), std::bind(lessCoord, _1, _2, &dirko::Point::y))->y;
+  }
+  int getMaxY(const dirko::Polygon &poly)
+  {
+    using namespace std::placeholders;
+    return std::max_element(poly.points.begin(), poly.points.end(), std::bind(lessCoord, _1, _2, &dirko::Point::y))->y;
+  }
+  bool pointInFrame(const dirko::Point &p, int minX, int maxX, int minY, int maxY)
+  {
+    return p.x >= minX && p.x <= maxX && p.y >= minY && p.y <= maxY;
   }
 }
 
@@ -135,4 +164,37 @@ void dirko::count(std::istream &in, std::ostream &out, const std::vector< Polygo
 void dirko::rects(std::istream &, std::ostream &out, const std::vector< Polygon > &polygons)
 {
   out << std::count_if(polygons.begin(), polygons.end(), isRect);
+}
+
+void dirko::inframe(std::istream &in, std::ostream &out, const std::vector< Polygon > &polygons)
+{
+  if (polygons.empty()) {
+    throw std::invalid_argument("invalid");
+  }
+  Polygon pol;
+  if (!(in >> pol)) {
+    throw std::invalid_argument("invalid");
+  }
+  in >> std::ws;
+  if (in.peek() != EOF || in.peek() != '\n') {
+    throw std::invalid_argument("invalid");
+  }
+
+  std::vector< int > minX_list(polygons.size());
+  std::vector< int > maxX_list(polygons.size());
+  std::vector< int > minY_list(polygons.size());
+  std::vector< int > maxY_list(polygons.size());
+
+  std::transform(polygons.begin(), polygons.end(), minX_list.begin(), getMinX);
+  std::transform(polygons.begin(), polygons.end(), maxX_list.begin(), getMaxX);
+  std::transform(polygons.begin(), polygons.end(), minY_list.begin(), getMinY);
+  std::transform(polygons.begin(), polygons.end(), maxY_list.begin(), getMaxY);
+
+  int MinX = *std::min_element(minX_list.begin(), minX_list.end());
+  int MaxX = *std::max_element(maxX_list.begin(), maxX_list.end());
+  int MinY = *std::min_element(minY_list.begin(), minY_list.end());
+  int MaxY = *std::max_element(maxY_list.begin(), maxY_list.end());
+
+  auto func = std::bind(pointInFrame, std::placeholders::_1, MinX, MaxX, MinY, MaxY);
+  out << (std::all_of(pol.points.begin(), pol.points.end(), func) ? "<TRUE>" : "<FALSE>");
 }
