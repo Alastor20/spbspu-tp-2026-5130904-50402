@@ -28,7 +28,7 @@ namespace
     std::vector< double > areas;
     areas.reserve(filtered.size());
     std::transform(filtered.begin(), filtered.end(), std::back_inserter(areas), dirko::calcArea);
-    out << std::accumulate(areas.begin(), areas.end(), 0.0, std::plus< double >()) << "\n";
+    out << std::accumulate(areas.begin(), areas.end(), 0.0, std::plus< double >());
   }
   bool lessArea(const dirko::Polygon &a, const dirko::Polygon &b)
   {
@@ -57,7 +57,7 @@ void dirko::area(std::istream &in, std::ostream &out, const std::vector< Polygon
     areas.reserve(polygons.size());
     std::transform(polygons.begin(), polygons.end(), std::back_inserter(areas), dirko::calcArea);
     double sum = std::accumulate(areas.begin(), areas.end(), 0.0, std::plus< double >());
-    out << sum / polygons.size() << "\n";
+    out << sum / polygons.size();
   } else if (param == "EVEN") {
     printFilteredSum(out, polygons, isEven);
   } else if (param == "ODD") {
@@ -83,10 +83,10 @@ void dirko::max(std::istream &in, std::ostream &out, const std::vector< Polygon 
 
   if (param == "AREA") {
     auto it = std::max_element(polygons.begin(), polygons.end(), lessArea);
-    out << std::fixed << std::setprecision(1) << dirko::calcArea(*it) << "\n";
+    out << std::fixed << std::setprecision(1) << dirko::calcArea(*it);
   } else if (param == "VERTEXES") {
     auto it = std::max_element(polygons.begin(), polygons.end(), lessVertex);
-    out << it->points.size() << "\n";
+    out << it->points.size();
   } else {
     throw std::invalid_argument("invalid");
   }
@@ -104,10 +104,10 @@ void dirko::min(std::istream &in, std::ostream &out, const std::vector< Polygon 
 
   if (param == "AREA") {
     auto it = std::min_element(polygons.begin(), polygons.end(), lessArea);
-    out << std::fixed << std::setprecision(1) << dirko::calcArea(*it) << "\n";
+    out << std::fixed << std::setprecision(1) << dirko::calcArea(*it);
   } else if (param == "VERTEXES") {
     auto it = std::min_element(polygons.begin(), polygons.end(), lessVertex);
-    out << it->points.size() << "\n";
+    out << it->points.size();
   } else {
     throw std::invalid_argument("invalid");
   }
@@ -121,14 +121,18 @@ void dirko::count(std::istream &in, std::ostream &out, const std::vector< Polygo
   }
 
   if (param == "EVEN") {
-    out << std::count_if(polygons.begin(), polygons.end(), isEven) << "\n";
+    out << std::count_if(polygons.begin(), polygons.end(), isEven);
   } else if (param == "ODD") {
-    out << std::count_if(polygons.begin(), polygons.end(), isOdd) << "\n";
+    out << std::count_if(polygons.begin(), polygons.end(), isOdd);
   } else {
     size_t n = std::stoul(param);
     if (n < 3) {
       throw std::invalid_argument("invalid");
     }
-    out << std::count_if(polygons.begin(), polygons.end(), std::bind(matchVertexies, std::placeholders::_1, n)) << "\n";
+    out << std::count_if(polygons.begin(), polygons.end(), std::bind(matchVertexies, std::placeholders::_1, n));
   }
+}
+void dirko::rects(std::istream &, std::ostream &out, const std::vector< Polygon > &polygons)
+{
+  out << std::count_if(polygons.begin(), polygons.end(), isRect);
 }

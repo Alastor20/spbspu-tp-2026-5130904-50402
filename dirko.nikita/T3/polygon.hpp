@@ -18,6 +18,7 @@ namespace dirko
   std::istream &operator>>(std::istream &in, Point &point);
   std::istream &operator>>(std::istream &in, Polygon &polygon);
   double calcArea(const Polygon &polygon);
+  bool isRect(const Polygon &polygon);
 }
 
 #endif
